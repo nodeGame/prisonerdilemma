@@ -30,9 +30,9 @@ window.onload = function() {
     // Connecting.
     if (location.search) {
         // Pass query arguments on.
-        node.connect('/alfie', { query: location.search.substr(1) });
+        node.connect('/pdlm', { query: location.search.substr(1) });
     }
     else {
-        node.connect('/alfie');
+        node.connect('/pdlm');
     }
 };
