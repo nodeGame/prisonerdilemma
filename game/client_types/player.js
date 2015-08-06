@@ -1,0 +1,219 @@
+/**
+ * # Player type implementation of the game stages
+ * Copyright(c) 2015 Stefano Balietti <sbalietti@ethz.ch>
+ * MIT Licensed
+ *
+ * Each client type must extend / implement the stages defined in `game.stages`.
+ * Upon connection each client is assigned a client type and it is automatically
+ * setup with it.
+ *
+ * http://www.nodegame.org
+ * ---
+ */
+
+"use strict";
+
+var ngc = require('nodegame-client');
+var stepRules = ngc.stepRules;
+var constants = ngc.constants;
+var publishLevels = constants.publishLevels;
+
+module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
+
+    var game;
+
+    // Store a reference to the number of players in the globals object.
+    // The globals object is sent to the client, and it is available under
+    // node.game.globals.
+    stager.setDefaultGlobals({ totPlayers: gameRoom.game.waitroom.GROUP_SIZE });
+
+    stager.setOnInit(function() {
+
+        // Initialize the client.
+
+        var header, frame, s;
+
+        // Some utility functions and variables;
+
+        node.game.lastDecision = null;
+
+        this.randomDecision = function() {
+            if (Math.random() < 0.5) node.game.decisionMade('red');
+            else node.game.decisionMade('blue');
+        };
+
+        this.decisionMade = function(type) {
+            node.game.lastDecision = type;
+            // Whatever parameter is passed to node.done is also sent to
+            // the server, together with the time duration from the beginning
+            // of the step, and whether the time expired or not.
+            node.done({ decision: type });
+        };
+
+        this.getPayoffTable = function(r) {
+            var p;
+            // Populate table.
+            p = this.settings.payoffs[r];
+
+            this.payoffTable.clear(true);
+
+            this.payoffTable.addRow([
+                p.payoffDefection + ', ' + p.payoffDefection,
+                p.payoffSucker + ', ' + p.payoffTemptation
+            ]);
+            this.payoffTable.addRow([
+                p.payoffTemptation + ', ' + p.payoffSucker,
+                p.payoffCooperation + ', ' + p.payoffCooperation
+            ]);
+            this.payoffTable.setHeader(['You choose Blue', 'You choose Red']);
+            this.payoffTable.setLeft([
+                'Other player chooses Blue', 'Other player chooses Red'
+            ]);
+
+            // The .parse method returns the HTML table element
+            // containing the data added to the Table object in init.
+            return this.payoffTable.parse();
+        };
+
+        // Registering event handlers valid throughout the game.
+        
+        // Clean up stage upon stepping into the next one.
+        node.on('STEPPING', function() {
+            W.clearFrame();
+        });
+
+        // Setup page: header + frame.
+
+        header = W.generateHeader();
+        frame = W.generateFrame();
+
+        // Add widgets.
+        this.visualRound = node.widgets.append('VisualRound', header);
+        this.timer = node.widgets.append('VisualTimer', header);
+
+        // Add payoff table.
+
+        this.payoffTable = new W.Table();
+
+    });
+
+    stager.extendStep('instructions', {
+        cb: function() {
+
+            // Load the instructions page as it is
+            // from the `/public` directory of this game.
+            W.loadFrame('instructions.htm', function() {
+
+                var button, n;
+                n = node.game.globals.totPlayers;
+                // W is the nodeGame object controlling the window.
+                // It offers several methods to search, fetch, and modify
+                // the structure and the elements on the page and the internal
+                // iframe where all the pages are loaded.
+                W.getElementById('playerCount').innerHTML = n;
+
+                // When the user clicks the button, signals that it can
+                // advance to the next stage.
+                button = W.getElementById('read');
+                button.onclick = function() {
+                    node.done();
+                };
+
+            });
+        },
+        // Set the maximum execution time for this stage.
+        // Notice: the time is client-side. This is the **effective** time
+        // that the stage will be visible on the client. If a machine is
+        // slower, or has worse internet connection, the stage will start
+        // a bit later, but it will anyway last the same amount of time.
+        timer: settings.timer.instructions
+    });
+    
+    stager.extendStep('matching', {
+        cb: function() {            
+            node.on.data('matched', function() {
+                node.done();
+            });
+        }
+    });
+
+    stager.extendStep('decision', {
+        cb: function() {
+            W.loadFrame('decision.htm', function() {
+                var currentRound, budget, table;
+                var blueButton, redButton;
+
+                // node.player contains generic info about the client,
+                // including its current stage of the game.
+                currentRound = node.player.stage.round - 1; // 0-based
+
+                // Sets the budget.
+                budget = node.game.settings.payoffs[currentRound].budget;
+                W.getElementById('mybudget').innerHTML = budget;
+
+                // Get the payoff settings for this round.
+                table = this.getPayoffTable(currentRound);               
+
+                // Add the payoff matrix to the frame.
+                W.getElementById('payoffMatrixDiv').appendChild(table);
+
+                // Intercept user action.
+
+                blueButton = W.getElementById('blueButton');
+                redButton = W.getElementById('redButton');
+
+                blueButton.onclick = function() {
+                    node.game.decisionMade('blue');
+                };
+                redButton.onclick = function() {
+                    node.game.decisionMade('red');
+                };
+
+            });
+        },
+        timer: settings.timer.decision
+    });
+
+    stager.extendStep('results', {
+        cb: function() {
+            W.loadFrame('results.htm', function() {
+                var button, choice, payoff, other;
+
+                button = W.getElementById('continue');
+                choice = W.getElementById('choice');
+                payoff = W.getElementById('payoff');
+                other = W.getElementById('other');
+
+                choice.innerHTML = node.game.lastDecision;
+
+                node.on.data('results', function(msg) {
+                    other.innerHTML = msg.data.decisionOpponent;
+                    payoff.innerHTML = msg.data.payoff;
+
+                    // When the user clicks the button, signals that it can
+                    // advance to the next stage.
+                    button.disabled = false;
+                    button.onclick = function() {
+                        node.done();
+                    };
+                });
+            });
+        },
+        timer: settings.timer.results
+    });
+
+
+    stager.extendStep('end', {
+        // frame: 'end.htm',
+        cb: function() {
+            W.loadFrame('end.htm');
+            node.game.timer.startTiming();
+            node.game.timer.setToZero();
+        }
+    });
+
+    // Building the return object.
+    game = setup;
+    game.plot = stager.getState();
+    return game;
+};
