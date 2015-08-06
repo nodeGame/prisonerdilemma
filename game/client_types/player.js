@@ -82,6 +82,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             W.clearFrame();
         });
 
+        // Display an alert in case of disconnection.
+        // node.on('SOCKET_DISCONNECT', function() {
+        //     alert('Disconnection from server detected.\n' +
+        //         'You might not be able to send and receive messages.');
+        // });
+
+
         // Setup page: header + frame.
 
         header = W.generateHeader();
@@ -206,9 +213,64 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('end', {
         // frame: 'end.htm',
         cb: function() {
-            W.loadFrame('end.htm');
-            node.game.timer.startTiming();
+            // Reset visual timer (hack).
+            node.game.timer.startTiming({milliseconds: 5000});
             node.game.timer.setToZero();
+
+            W.loadFrame('end.htm', function() {
+                var spanCode;
+
+                spanCode= W.getElementById('span-code');
+                spanCode.innerHTML = node.player.id;
+
+                node.on.data('win', function(msg) {
+                    var spanFee, spanEcu, spanDollars, exitCode;
+        
+                    console.log(msg.data);
+
+                    spanFee = W.getElementById('span-fee');
+                    spanFee.innerHTML = node.game.settings.showupFee;
+
+                    spanEcu = W.getElementById('span-ecu');
+                    spanDollars = W.getElementById('span-dollars');
+
+                    spanEcu.innerHTML = parseFloat(msg.data.payoff, 10)
+                        .toFixed(2);
+                    spanDollars.innerHTML = msg.data.usd;
+
+                    if (msg.data.ExitCode) {
+                        exitCode = W.getElementById('exit-code');
+                        exitCode.innerHTML = msg.data.ExitCode;
+                    }
+
+                    W.getElementById('win').style.display = '';
+                    
+                });
+
+                // Remove warning for closing the tab.
+                W.restoreOnleave();
+
+                // For testing/debugging only.
+                node.env('auto', function() {
+                    if (node.env('allowDisconnect') && Math.random() < 0.5) {
+                        node.socket.disconnect();
+                        node.game.stop();
+                        node.timer.randomExec(function() {
+                            node.socket.reconnect();
+                        }, 4000);
+                    }
+                    else {
+                        if (!node.env('allowTimeup') ||
+                            Math.random() < 0.5) {
+
+                            node.timer.randomExec(function() {
+                                node.done();
+                            }, 3000);
+                        }
+                    }
+                });
+            });
+
         }
     });
 

@@ -1,0 +1,181 @@
+/* Car-sharing game CSS */
+
+div#container {
+    text-align: center;
+    font-size: 20px;
+}
+
+.subtitle {
+    font-size: 20px;
+    font-style: italics;
+}
+
+/* Instructions */
+
+div#instructions {
+    margin-top: 0;
+    padding-top: 5px;
+}
+
+div#payoff-info ul {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+div#payoff-info ul li {
+    margin-bottom: 10px;
+}
+
+span#payoff-car, span#payoff-car-2, span#payoff-not-car,
+span#payoff-bus, span#players-count, span#car-number {
+   font-weight: bold;
+}
+
+/* Instructions 2 */
+
+span#rounds-count, span#ecu-conversion, span#ecu-conversion-2 {
+   font-weight: bold;
+}
+
+/* Quiz */
+
+div#quiz ul, ol {
+    margin: 30px 0 30px 10px;
+
+}
+
+div#quiz li {
+    margin-bottom: 20px;
+}
+
+div#container_quiz {
+    margin: 0 auto;
+    width: 800px;
+}
+
+div#quiz {
+    margin: 0 auto;
+    text-align: left;
+    padding: 10px;
+}
+
+.quiz_result {
+    font-weight: bold;
+}
+
+.question {
+    font-weight: bold;
+}
+
+/* Decision */
+
+table#table-decision {
+    border-spacing: 40px;
+    border-collapse: separate;
+    margin-top: 20px;
+    margin: 0 auto;
+}
+
+table#table-decision td {
+    width: 350px;
+    padding: 5px;
+    text-align: center;
+    vertical-align: top;
+    padding: 20px;
+    cursor: pointer;
+}
+
+table#table-decision td:hover {
+    background: #FFE;
+}
+
+table#table-decision img {
+    width: 200px;
+    height: 150px;
+}
+
+div#car-departure-div {
+    margin-top: 15px;
+    font-size: 15px;
+}
+
+span#car-departure {
+    font-weight: bold;
+}
+
+div.departure-text {
+    margin-top: 5px;
+    margin-bottom: 15px;
+}
+
+div#car-slider {
+    margin-bottom: 15px;
+    margin-left: 8px;
+    width: 95%;
+}
+
+div#div-button {
+    clear: both;
+    margin-top: 10px;
+    text-align: center;
+    border: 10px;
+}
+
+td.td-selected {
+    background: #FFC;
+    border: 5px solid #111;
+}
+
+td.td-not-selected {
+    border: 5px solid #CCC;
+}
+
+span.td-title {
+    display: block;
+    margin-bottom: 20px;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+/* Results */
+
+table#table-results {
+    margin: 0 auto;
+}
+
+table#table-results tr {
+    border-bottom: 1px solid #CCC;
+}
+
+table#table-results td {
+    width: 280px;
+    text-align: center;
+    vertical-align: top;
+    padding: 10px 2px;
+}
+
+p#summary {
+    margin-top: 50px;
+}
+
+span#chosen-bus, span#chosen-car, span#average-car-departure,
+td#choice, td#payoff, td#departure, span#arrival-expected,
+span#arrival-actual {
+   font-weight: bold;
+}
+
+.large {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+
+/* End */
+
+span#span-fee, span#span-dollars, span#span-ecu {
+    font-weight: bold;
+}
+
+span#span-code {
+    font-style: italics;
+}

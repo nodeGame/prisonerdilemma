@@ -9,7 +9,7 @@
  *
  * The name of the chosen treatment will be added as:
  *
- *    `node.game.settings.treatmentName`
+ *   `node.game.settings.treatmentName`
  *
  * http://www.nodegame.org
  * ---
@@ -22,7 +22,13 @@ module.exports = {
     SESSION_ID: 1,
 
     // Numnber of game rounds repetitions.
-    REPEAT: 6,
+    REPEAT: 2,
+
+    // Show up fee.
+    showupFee: 1,
+
+    // Conversion rate ECU to DOLLARS.
+    exchangeRate: 0.001,
 
     // Timer for each step in milliseconds.
     timer: {

@@ -30,7 +30,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.setOnInit(function() {
         // Initialize the client.
-        console.log('Stefano Balietti logic ' + node.nodename + ' starts.');
+        console.log('Logic ' + node.nodename + ' starts.');
 
         // Matching for 6 rounds (will be restructure in 'matching' stage).
         this.matchedPlayers = matchedPlayers;
@@ -39,7 +39,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         this.ids = [];
 
         this.computeResults = function(stage) {
-            var round;
+            var round, player;
             round = stage.round - 1; // 0-based.
             
             // node.game.memory is a database containing all the objects
@@ -58,6 +58,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 }
                 e.decisionOpponent = decisionOpponent;
                 e.payoff = computePayoff(round, e.decision, decisionOpponent);
+
+                player = channel.registry.getClient(e.player);
+                player.payoff = (player.payoff || 0) + e.payoff;
+
                 // Send results to player.
                 node.say('results', e.player, {
                     decisionOpponent: e.decisionOpponent,
@@ -126,6 +130,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('end', {
         cb: function() {
+            
+            var payoffs;
+            payoffs = node.game.pl.map(doCheckout);
+
             node.game.memory.save(channel.getGameDir() + 'data/data_' +
                                   node.nodename + '.json');
         }
@@ -157,4 +165,48 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         if (decision2 == 'blue') return p.payoffTemptation;
         return p.payoffDefection;
     }   
+
+    /**
+     * ## doCheckout
+     *
+     * Checks if a player has played enough rounds, and communicates the outcome
+     *
+     * @param {object} p A player object with valid id
+     *
+     * @return {object} A payoff object as required by descil-mturk.postPayoffs.
+     *   If the player has not completed enough rounds returns undefined.
+     */
+    function doCheckout(p) {
+        var code;
+        code = channel.registry.getClient(p.id);
+        if (code.checkout) {
+            // Will popup on the window od the client.
+            node.remoteAlert('Hi! It looks like you have already ' +
+                             'completed this game.', p.id);
+            return;
+        }
+        // Computing payoff and USD.
+        code.checkout = true;
+
+        // Must have played at least half of the rounds.
+
+        code.payoff = code.payoff || 0;
+        code.usd = parseFloat(
+            ((code.payoff * settings.exchangeRate).toFixed(2)),
+            10);
+
+        // Sending info to player.
+        node.say('win', p.id, {
+            ExitCode: code.ExitCode,
+            fail: code.fail,
+            payoff: code.payoff,
+            usd: code.usd
+        });
+
+        return {
+            AccessCode: p.id,
+            Bonus: code.usd,
+            BonusReason: 'Full bonus.'
+        };
+    }
 };
