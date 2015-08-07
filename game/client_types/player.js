@@ -77,8 +77,31 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             return this.payoffTable.parse();
         };
 
+        this.autoPlay = function(decision) {
+            // For testing/debugging only.
+            node.env('auto', function() {
+                if (node.env('allowDisconnect') && Math.random() < 0.5) {
+                    node.socket.disconnect();
+                    node.game.stop();
+                    node.timer.randomExec(function() {
+                        node.socket.reconnect();
+                    }, 4000);
+                }
+                else {
+                    if (!node.env('allowTimeup') ||
+                        Math.random() < 0.5) {
+
+                        node.timer.randomExec(function() {
+                            if (decision) node.game.randomDecision();
+                            else node.done();
+                        }, 3000);                        
+                    }
+                }
+            });
+        };
+
         // Registering event handlers valid throughout the game.
-        
+
         // Clean up stage upon stepping into the next one.
         node.on('STEPPING', function() {
             W.clearFrame();
@@ -128,6 +151,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     node.done();
                 };
 
+                // Debugging and Testing.
+                this.autoPlay();
             });
         },
         // Set the maximum execution time for this stage.
@@ -137,9 +162,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // a bit later, but it will anyway last the same amount of time.
         timer: settings.timer.instructions
     });
-    
+
      stager.extendStep('matching', {
-         cb: function() {            
+         cb: function() {
              setTimeout(function() {
                  node.done();
              }, 1000);
@@ -161,7 +186,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 W.getElementById('mybudget').innerHTML = budget;
 
                 // Get the payoff settings for this repetition.
-                table = this.getPayoffTable(repetition);               
+                table = this.getPayoffTable(repetition);
 
                 // Add the payoff matrix to the frame.
                 W.getElementById('payoffMatrixDiv').appendChild(table);
@@ -178,6 +203,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     node.game.decisionMade('red');
                 };
 
+                // Debugging and Testing.
+                this.autoPlay(true);
             });
         },
         timer: {
@@ -211,6 +238,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         node.done();
                     };
                 });
+
+                // Debugging and Testing.
+                this.autoPlay();
+
             });
         },
         timer: settings.timer.results
@@ -232,7 +263,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                 node.on.data('win', function(msg) {
                     var spanFee, spanEcu, spanDollars, exitCode;
-        
+
                     console.log(msg.data);
 
                     spanFee = W.getElementById('span-fee');
@@ -251,31 +282,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     }
 
                     W.getElementById('win').style.display = '';
-                    
+
                 });
 
                 // Remove warning for closing the tab.
                 W.restoreOnleave();
 
-                // For testing/debugging only.
-                node.env('auto', function() {
-                    if (node.env('allowDisconnect') && Math.random() < 0.5) {
-                        node.socket.disconnect();
-                        node.game.stop();
-                        node.timer.randomExec(function() {
-                            node.socket.reconnect();
-                        }, 4000);
-                    }
-                    else {
-                        if (!node.env('allowTimeup') ||
-                            Math.random() < 0.5) {
-
-                            node.timer.randomExec(function() {
-                                node.done();
-                            }, 3000);
-                        }
-                    }
-                });
+                // Debugging and Testing.
+                this.autoPlay();
             });
 
         }
