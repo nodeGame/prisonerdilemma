@@ -22,7 +22,7 @@ module.exports = {
     SESSION_ID: 1,
 
     // Numnber of game rounds repetitions.
-    REPEAT: 6,
+    REPEAT: 2,
 
     // Show up fee.
     showupFee: 1,

@@ -38,7 +38,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // Initialize the client.
         console.log('Logic ' + node.nodename + ' starts.');
 
-        // Matching for 6 rounds (will be restructure in 'matching' stage).
+        // Matching for 6 repetitions (will be restructure in 'matching' stage).
         this.matchedPlayers = matchedPlayers;
 
         // Will contain the ids of connected players.
@@ -58,8 +58,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // If a player was matched with a bot, the bot takes the
         // decision in this routine.
         this.computeResults = function(stage) {
-            var round, player;
-            round = stage.round - 1; // 0-based.
+            var repetition, player;
+            repetition = node.game.globals.getRepetition(stage);
 
             // node.game.memory is a database containing all the objects
             // sent by the clients via node.done, or node.set.
@@ -67,9 +67,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             node.game.memory.stage[stage].each(function(e) {
                 var opponent, decisionOpponent;
                 // Find opponent.
-                opponent = node.game.matchedPlayers[round][e.player];
-                debugger
-
+                opponent = node.game.matchedPlayers[repetition][e.player];
+  
                 // Find out decisions of matched players.
                 if (opponent === 'bot') {
                     decisionOpponent = bot(node, stage, e, settings);
@@ -84,7 +83,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     }
                 }
                 e.decisionOpponent = decisionOpponent;
-                e.payoff = computePayoff(round, e.decision, decisionOpponent);
+                e.payoff = computePayoff(repetition, e.decision,
+                                         decisionOpponent);
 
                 player = channel.registry.getClient(e.player);
                 player.payoff = (player.payoff || 0) + e.payoff;
@@ -97,7 +97,16 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             });
         };
 
+        this.printInfoStep = function() {
+            var stage = node.player.stage;
+            console.log('Logic: ' + node.nodename + ' rep: ' +
+                        (node.game.globals.getRepetition(stage)+1) +
+                        ' round: ' + stage.round);
+        };
+
     });
+
+    // Start extending the game steps.
 
     stager.extendStep('matching', {
         cb: function() {
@@ -120,24 +129,20 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     pair = this.matchedPlayers[i][j];
                     if ('number' === typeof pair[0]) id1 = this.ids[pair[0]];
                     if ('number' === typeof pair[1]) id2 = this.ids[pair[1]];
-                    if (id1) {
-                        matchedPlayers[i][id1] = id2 || 'bot';
-                        node.say('matched', id1);
-                    }
-                    if (id2) {
-                        matchedPlayers[i][id2] = id1 || 'bot';
-                        node.say('matched', id2);
-                    }
+                    if (id1) matchedPlayers[i][id1] = id2 || 'bot';
+                    if (id2) matchedPlayers[i][id2] = id1 || 'bot';                    
                 }
             }
             // Substitute matching-structure.
             this.matchedPlayers = matchedPlayers;
+            
+            console.log('Logic ' + node.nodename + ' Matching.');
         }
     });
 
     stager.extendStep('instructions', {
         cb: function() {
-            console.log('Instructions.');
+            console.log('Logic ' + node.nodename + ' Instructions.');
         }
     });
 
@@ -145,7 +150,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         cb: function() {
             // Reset last decisions.
             this.lastDecisions = {};
-            console.log('Decision Game round: ' + node.player.stage.round);
+            this.printInfoStep();
         }
     });
 
@@ -159,7 +164,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
             this.computeResults(previousStage);
 
-            console.log('Result Game round: ' + node.player.stage.round);
         }
     });
 
@@ -171,6 +175,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
             node.game.memory.save(channel.getGameDir() + 'data/data_' +
                                   node.nodename + '.json');
+
+            console.log('Logic ' + node.nodename + ' End.');
         }
     });
 
@@ -190,9 +196,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     // Helper functions.
 
-    function computePayoff(round, decision1, decision2) {
+    function computePayoff(repetition, decision1, decision2) {
         var p, out;
-        p = settings.payoffs[round];
+        p = settings.payoffs[repetition];
         if (decision1 === 'blue') {
             if (decision2 === 'blue') return p.payoffCooperation;
             return p.payoffSucker;

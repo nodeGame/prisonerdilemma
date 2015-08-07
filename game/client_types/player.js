@@ -25,7 +25,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     // Store a reference to the number of players in the globals object.
     // The globals object is sent to the client, and it is available under
     // node.game.globals.
-    stager.setDefaultGlobals({ totPlayers: gameRoom.game.waitroom.GROUP_SIZE });
+    stager.setDefaultGlobals({
+        totPlayers: gameRoom.game.waitroom.GROUP_SIZE
+    }, true);
 
     stager.setOnInit(function() {
 
@@ -136,30 +138,30 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         timer: settings.timer.instructions
     });
     
-    stager.extendStep('matching', {
-        cb: function() {            
-            node.on.data('matched', function() {
-                node.done();
-            });
-        }
-    });
+     stager.extendStep('matching', {
+         cb: function() {            
+             setTimeout(function() {
+                 node.done();
+             }, 1000);
+         }
+     });
 
     stager.extendStep('decision', {
         cb: function() {
             W.loadFrame('decision.htm', function() {
-                var currentRound, budget, table;
+                var repetition, budget, table;
                 var blueButton, redButton;
 
                 // node.player contains generic info about the client,
                 // including its current stage of the game.
-                currentRound = node.player.stage.round - 1; // 0-based
+                repetition = node.game.globals.getRepetition(node.player.stage);
 
                 // Sets the budget.
-                budget = node.game.settings.payoffs[currentRound].budget;
+                budget = node.game.settings.payoffs[repetition].budget;
                 W.getElementById('mybudget').innerHTML = budget;
 
-                // Get the payoff settings for this round.
-                table = this.getPayoffTable(currentRound);               
+                // Get the payoff settings for this repetition.
+                table = this.getPayoffTable(repetition);               
 
                 // Add the payoff matrix to the frame.
                 W.getElementById('payoffMatrixDiv').appendChild(table);

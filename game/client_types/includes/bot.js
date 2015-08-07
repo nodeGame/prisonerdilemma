@@ -1,12 +1,11 @@
 /**
- * # Bot type implementation of the game stages
+ * # Bot for Prisoner Dilemma
  * Copyright(c) 2015 Stefano Balietti <sbalietti@ethz.ch>
  * MIT Licensed
  *
  * http://www.nodegame.org
  * ---
  */
-
 module.exports = function(node, stage, opponent, settings) {
     var decision;
 

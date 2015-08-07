@@ -11,6 +11,9 @@
 
 module.exports = function(stager, settings) {
 
+    // We build the game sequence here.
+    // Players and Logic will extend it for their own purposes.
+
     // Game is divided in blocks, stages, and steps.
     // There are several ways to define them.
     // An easy way is to add them here, and then each client type extend them.
@@ -29,15 +32,25 @@ module.exports = function(stager, settings) {
         steps: ['decision', 'results']
     });
 
-     stager
+    stager
         .next('matching')
         .next('instructions')
-        .repeat('game', settings.REPEAT)
+        .repeat('game AS session1', settings.REPEAT)
+        .repeat('game AS session2', settings.REPEAT)
+        .repeat('game AS session3', settings.REPEAT)
+        .repeat('game AS session4', settings.REPEAT)
+        .repeat('game AS session5', settings.REPEAT)
+        .repeat('game AS session6', settings.REPEAT)
         .next('end')
         .gameover();
 
-    // Modify the stager to skip one stage.
-    // stager.skip('instructions');
+
+    // Sharing functions across players and logic.
+    stager.setDefaultGlobals({
+        getRepetition: function(stage) {
+            return stage.stage - 3; // 0-based; instructions + matching;
+        }
+    });
 
     return stager.getState();
 };
