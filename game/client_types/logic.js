@@ -47,7 +47,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // Save a reference to players decisions to optmize search.
         this.lastDecisions = {};
         node.on('in.set.DATA', function(msg) {
-            if (msg.stage.stage === 3) {
+            if (msg.stage.stage > 2 && msg.stage.stage < 9) {
                 that.lastDecisions[msg.from] = msg.data.decision;
             }
         });
@@ -68,7 +68,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 var opponent, decisionOpponent;
                 // Find opponent.
                 opponent = node.game.matchedPlayers[repetition][e.player];
-  
+
+                console.log('Match: ', e.player, ' - ', opponent);
+
                 // Find out decisions of matched players.
                 if (opponent === 'bot') {
                     decisionOpponent = bot(node, stage, e, settings);
@@ -78,6 +80,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         decisionOpponent = that.lastDecisions[opponent];
                     }
                     else {
+                        console.log('UUUUNdefined! ',  that.lastDecisions);
                         // Opponent might have disconnected.
                         decisionOpponent = Math.random() < 0.5 ? 'red' : 'blue';
                     }
@@ -130,12 +133,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     if ('number' === typeof pair[0]) id1 = this.ids[pair[0]];
                     if ('number' === typeof pair[1]) id2 = this.ids[pair[1]];
                     if (id1) matchedPlayers[i][id1] = id2 || 'bot';
-                    if (id2) matchedPlayers[i][id2] = id1 || 'bot';                    
+                    if (id2) matchedPlayers[i][id2] = id1 || 'bot';
                 }
             }
             // Substitute matching-structure.
             this.matchedPlayers = matchedPlayers;
-            
+
             console.log('Logic ' + node.nodename + ' Matching.');
         }
     });

@@ -67,9 +67,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 p.payoffTemptation + ', ' + p.payoffSucker,
                 p.payoffCooperation + ', ' + p.payoffCooperation
             ]);
-            this.payoffTable.setHeader(['You choose Blue', 'You choose Red']);
+            this.payoffTable.setHeader(['You choose Red', 'You choose Blue']);
             this.payoffTable.setLeft([
-                'Other player chooses Blue', 'Other player chooses Red'
+                'Other player chooses Red', 'Other player chooses Blue'
             ]);
 
             // The .parse method returns the HTML table element
