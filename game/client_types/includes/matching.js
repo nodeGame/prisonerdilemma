@@ -11,7 +11,7 @@ module.exports = [
 
     // Round 1.
     [
-        [0, 'bot'], [2, 'bot'], [3, 'bot'], [4, 'bot'], [5, 'bot']
+        [0, 'bot'], [1, 'bot'], [2, 'bot'], [3, 'bot'], [4, 'bot'], [5, 'bot']
     ],
     // Round 2.
     [
@@ -19,7 +19,7 @@ module.exports = [
     ],
     // Round 3.
     [
-        [0, 'bot'], [2, 'bot'], [3, 'bot'], [4, 'bot'], [5, 'bot']
+        [0, 'bot'], [1, 'bot'], [2, 'bot'], [3, 'bot'], [4, 'bot'], [5, 'bot']
     ],
     // Round 4.
     [
@@ -27,7 +27,7 @@ module.exports = [
     ],
     // Round 5.
     [
-        [0, 'bot'], [2, 'bot'], [3, 'bot'], [4, 'bot'], [5, 'bot']
+        [0, 'bot'], [1, 'bot'], [2, 'bot'], [3, 'bot'], [4, 'bot'], [5, 'bot']
     ],
     // Round 6.
     [

@@ -29,6 +29,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     // Must implement the stages here.
 
     stager.setOnInit(function() {
+        var that;
+
+        // Need to keep reference to `this`, because it might change
+        // inside the callbacks below.
+        that = this;
+
         // Initialize the client.
         console.log('Logic ' + node.nodename + ' starts.');
 
@@ -38,6 +44,19 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // Will contain the ids of connected players.
         this.ids = [];
 
+        // Save a reference to players decisions to optmize search.
+        this.lastDecisions = {};
+        node.on('in.set.DATA', function(msg) {
+            if (msg.stage.stage === 3) {
+                that.lastDecisions[msg.from] = msg.data.decision;
+            }
+        });
+
+        // Routine to compute the results of the given stage.
+        // Looks into the database `node.game.memory` and goes through
+        // the matched players to see what what their decision.
+        // If a player was matched with a bot, the bot takes the 
+        // decision in this routine.
         this.computeResults = function(stage) {
             var round, player;
             round = stage.round - 1; // 0-based.
@@ -54,7 +73,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     decisionOpponent = bot(node, stage, e, settings);
                 }
                 else {
-                    decisionOpponent = 'red'; // TODO check.
+                    if ('undefined' !== typeof that.lastDecisions[opponent]) {
+                        decisionOpponent = that.lastDecisions[opponent];
+                    }
+                    else {
+                        // Opponent might have disconnected.
+                        decisionOpponent = Math.random() < 0.5 ? 'red' : 'blue';
+                    }
                 }
                 e.decisionOpponent = decisionOpponent;
                 e.payoff = computePayoff(round, e.decision, decisionOpponent);
@@ -110,6 +135,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('decision', {
         cb: function() {
+            // Reset last decisions.
+            this.lastDecisions = {};
             console.log('Decision Game round: ' + node.player.stage.round);
         }
     });
