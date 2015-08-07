@@ -26,16 +26,7 @@ div#payoff-info ul li {
     margin-bottom: 10px;
 }
 
-span#payoff-car, span#payoff-car-2, span#payoff-not-car,
-span#payoff-bus, span#players-count, span#car-number {
-   font-weight: bold;
-}
-
 /* Instructions 2 */
-
-span#rounds-count, span#ecu-conversion, span#ecu-conversion-2 {
-   font-weight: bold;
-}
 
 /* Quiz */
 
@@ -69,66 +60,20 @@ div#quiz {
 
 /* Decision */
 
-table#table-decision {
-    border-spacing: 40px;
-    border-collapse: separate;
+table#table-decision {       
+    border-spacing: 5px;
+    border-collapse: separate;     
     margin-top: 20px;
     margin: 0 auto;
 }
 
 table#table-decision td {
-    width: 350px;
+    width: 200px;
     padding: 5px;
     text-align: center;
-    vertical-align: top;
-    padding: 20px;
-    cursor: pointer;
+    vertical-align: middle;
 }
 
-table#table-decision td:hover {
-    background: #FFE;
-}
-
-table#table-decision img {
-    width: 200px;
-    height: 150px;
-}
-
-div#car-departure-div {
-    margin-top: 15px;
-    font-size: 15px;
-}
-
-span#car-departure {
-    font-weight: bold;
-}
-
-div.departure-text {
-    margin-top: 5px;
-    margin-bottom: 15px;
-}
-
-div#car-slider {
-    margin-bottom: 15px;
-    margin-left: 8px;
-    width: 95%;
-}
-
-div#div-button {
-    clear: both;
-    margin-top: 10px;
-    text-align: center;
-    border: 10px;
-}
-
-td.td-selected {
-    background: #FFC;
-    border: 5px solid #111;
-}
-
-td.td-not-selected {
-    border: 5px solid #CCC;
-}
 
 span.td-title {
     display: block;
@@ -137,6 +82,33 @@ span.td-title {
     font-weight: bold;
 }
 
+span#mybudget {
+    font-weight: bold;
+}
+
+input#blueButton, input#redButton {
+    font-weight: bold;
+    font-size: 20px;
+    width: 100px;
+}
+
+input#blueButton {
+    background: #0066FF;
+    margin-right: 20px;
+}
+
+
+input#redButton {
+    background: #FF4719;
+    margin-left: 20px;
+}
+
+input#blueButton:hover {
+    background: #99C2FF;
+}
+input#redButton:hover {
+    background: #FFC2B2;
+}
 /* Results */
 
 table#table-results {

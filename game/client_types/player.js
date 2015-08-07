@@ -100,7 +100,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         // Add payoff table.
 
-        this.payoffTable = new W.Table();
+        this.payoffTable = new W.Table({ id: 'table-decision' });
 
     });
 
