@@ -178,7 +178,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
             });
         },
-        timer: settings.timer.decision
+        timer: {
+            milliseconds: settings.timer.decision,
+            timeup: function() {
+                node.game.randomDecision();
+            }
+        }
     });
 
     stager.extendStep('results', {

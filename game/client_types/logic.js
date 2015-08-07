@@ -55,19 +55,21 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // Routine to compute the results of the given stage.
         // Looks into the database `node.game.memory` and goes through
         // the matched players to see what what their decision.
-        // If a player was matched with a bot, the bot takes the 
+        // If a player was matched with a bot, the bot takes the
         // decision in this routine.
         this.computeResults = function(stage) {
             var round, player;
             round = stage.round - 1; // 0-based.
-            
+
             // node.game.memory is a database containing all the objects
             // sent by the clients via node.done, or node.set.
             // It is organized by stage and by client id.
             node.game.memory.stage[stage].each(function(e) {
                 var opponent, decisionOpponent;
-                // Find opponent. 
-                opponent = node.game.matchedPlayers[e.player];               
+                // Find opponent.
+                opponent = node.game.matchedPlayers[round][e.player];
+                debugger
+
                 // Find out decisions of matched players.
                 if (opponent === 'bot') {
                     decisionOpponent = bot(node, stage, e, settings);
@@ -118,12 +120,18 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     pair = this.matchedPlayers[i][j];
                     if ('number' === typeof pair[0]) id1 = this.ids[pair[0]];
                     if ('number' === typeof pair[1]) id2 = this.ids[pair[1]];
-                    matchedPlayers[i][id1] = id2 || 'bot';
-                    matchedPlayers[i][id2] = id1 || 'bot';
-                    if (id1) node.say('matched', id1);
-                    if (id2) node.say('matched', id2);
+                    if (id1) {
+                        matchedPlayers[i][id1] = id2 || 'bot';
+                        node.say('matched', id1);
+                    }
+                    if (id2) {
+                        matchedPlayers[i][id2] = id1 || 'bot';
+                        node.say('matched', id2);
+                    }
                 }
-            }            
+            }
+            // Substitute matching-structure.
+            this.matchedPlayers = matchedPlayers;
         }
     });
 
@@ -157,7 +165,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('end', {
         cb: function() {
-            
+
             var payoffs;
             payoffs = node.game.pl.map(doCheckout);
 
@@ -182,7 +190,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     // Helper functions.
 
-    function computePayoff(round, decision1, decision2) {        
+    function computePayoff(round, decision1, decision2) {
         var p, out;
         p = settings.payoffs[round];
         if (decision1 === 'blue') {
@@ -191,7 +199,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
         if (decision2 == 'blue') return p.payoffTemptation;
         return p.payoffDefection;
-    }   
+    }
 
     /**
      * ## doCheckout

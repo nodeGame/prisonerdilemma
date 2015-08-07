@@ -90,24 +90,28 @@ input#blueButton, input#redButton {
     font-weight: bold;
     font-size: 20px;
     width: 100px;
+    color: white;
 }
 
 input#blueButton {
     background: #0066FF;
     margin-right: 20px;
+    color: #E6F0FA;
 }
-
 
 input#redButton {
     background: #FF4719;
     margin-left: 20px;
+    color: #FFEBE6;
 }
 
 input#blueButton:hover {
     background: #99C2FF;
+    color: #003366;
 }
 input#redButton:hover {
     background: #FFC2B2;
+    color: #4C0F00;
 }
 /* Results */
 
@@ -128,12 +132,6 @@ table#table-results td {
 
 p#summary {
     margin-top: 50px;
-}
-
-span#chosen-bus, span#chosen-car, span#average-car-departure,
-td#choice, td#payoff, td#departure, span#arrival-expected,
-span#arrival-actual {
-   font-weight: bold;
 }
 
 .large {

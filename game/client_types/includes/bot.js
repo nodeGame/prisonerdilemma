@@ -7,7 +7,7 @@
  * ---
  */
 
-module.exports = function(node, stage, opponentDecision, settings) {
+module.exports = function(node, stage, opponent, settings) {
     var decision;
 
     // Compute the decision.
