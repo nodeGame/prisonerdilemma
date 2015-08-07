@@ -47,7 +47,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // Save a reference to players decisions to optmize search.
         this.lastDecisions = {};
         node.on('in.set.DATA', function(msg) {
-            if (msg.stage.stage > 2 && msg.stage.stage < 9) {
+            var s = msg.stage;
+            if (s.stage > 2 && s.stage < 9 && s.step === 1) {
                 that.lastDecisions[msg.from] = msg.data.decision;
             }
         });
@@ -69,7 +70,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 // Find opponent.
                 opponent = node.game.matchedPlayers[repetition][e.player];
 
-                console.log('Match: ', e.player, ' - ', opponent);
+                // Add reference to opponent.
+                e.opponent = opponent;
+
+                // Debug.
+                // console.log('Match: ', e.player, ' - ', opponent);
 
                 // Find out decisions of matched players.
                 if (opponent === 'bot') {
@@ -80,9 +85,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         decisionOpponent = that.lastDecisions[opponent];
                     }
                     else {
-                        console.log('UUUUNdefined! ',  that.lastDecisions);
                         // Opponent might have disconnected.
                         decisionOpponent = Math.random() < 0.5 ? 'red' : 'blue';
+                        e.randomOpponent = true;
                     }
                 }
                 e.decisionOpponent = decisionOpponent;

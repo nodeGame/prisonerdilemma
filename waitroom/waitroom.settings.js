@@ -9,10 +9,10 @@
 module.exports = {
 
     // How many clients must connect before groups are formed.
-    POOL_SIZE: 2,
+    POOL_SIZE: 6,
 
     // The size of each group.
-    GROUP_SIZE: 2,
+    GROUP_SIZE: 6,
 
     // Treatment assigned to groups.
     // If left undefined, a random treatment will be selected.

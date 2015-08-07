@@ -17,7 +17,7 @@ module.exports = function(node, stage, opponent, settings) {
         player: 'bot',
         stage: stage,
         decision: decision,
-        opponent: opponent.id
+        opponent: opponent.player
     });
 
     // Return decision.
